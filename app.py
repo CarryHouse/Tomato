@@ -33,7 +33,7 @@ async def create_data(item:Pointdata):
         result= {"Error":"data not sent"}
     return result
 
-@app.post("/fetchdata/")
+@app.get("/fetchdata/")
 async def read_results():
     try:
         query = "select * from Traffic"
