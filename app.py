@@ -22,6 +22,7 @@ class Pointdata(BaseModel):
     counts:int
     location:str
     vehicletype:str
+    trackdate:str
 
 @app.post("/traffic/")
 async def create_data(item:Pointdata):
