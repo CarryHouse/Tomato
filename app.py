@@ -36,7 +36,7 @@ async def create_data(item:Pointdata):
 @app.get("/fetchdata/")
 async def read_results():
     try:
-        query = "select * from Traffic"
+        query = "select * from Traffic order by trackdate DESC"
         result = await database.fetch_all(query=query)
     except:
         result= {"Error":"Database is empty"}
