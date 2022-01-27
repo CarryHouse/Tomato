@@ -27,7 +27,7 @@ class Pointdata(BaseModel):
 async def create_data(item:Pointdata):
     try:
         # query = conn.execute("insert into Traffic(deviceName,location,vehicletype,vehiclecount) values('{0}','{1}','{2}','{3}')".format(item.device,item.location,item.vehicletype,item.counts))
-        await database.execute("insert into Traffic(deviceName,location,vehicletype,vehiclecount) values('{0}','{1}','{2}','{3}')".format(item.device,item.location,item.vehicletype,item.counts))
+        await database.execute("insert into Traffic(deviceName,tdate,location,vehicletype,vehiclecount) values('{0}','{1}','{2}','{3}','{4}')".format(item.device,item.trackdate,item.location,item.vehicletype,item.counts))
         result= {"message":"success"}
     except:
         result= {"Error":"data not sent"}
