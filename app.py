@@ -6,6 +6,7 @@ import numpy as np
 import io
 from tensorflow import keras
 from fastapi.encoders import jsonable_encoder
+import os 
 
 app = FastAPI()
 
@@ -50,5 +51,6 @@ async def predict_image(file: UploadFile = File(...)):
 
     return jsonable_encoder(result)
 
-if __name__ == "__main__":
-    uvicorn.run("app:app", reload=True, access_log=False)
+port = int(os.environ.get("PORT", 8000)) 
+# Use 8000 as a default port if not specified by Heroku 
+uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True, access_log=False)
