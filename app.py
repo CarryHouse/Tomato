@@ -7,18 +7,6 @@ import io
 from tensorflow import keras
 from fastapi.encoders import jsonable_encoder
 import os 
-
-app = FastAPI()
-
-# Disable scientific notation for clarityimport uvicorn
-import tensorflow as tf
-from fastapi import FastAPI, UploadFile, File
-from PIL import Image, ImageOps
-import numpy as np
-import io
-from tensorflow import keras
-from fastapi.encoders import jsonable_encoder
-import os 
 import logging
 
 app = FastAPI()
@@ -76,7 +64,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)  # Add logging configuration
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True, access_log=False)
-
+y
 np.set_printoptions(suppress=True)
 
 cwd = os.getcwd() 
