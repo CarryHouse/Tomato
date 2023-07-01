@@ -1,6 +1,6 @@
-fastapi==0.99.0
+fastapi
 numpy
 Pillow
 tensorflow-cpu
-uvicorn==0.22.0
+uvicorn
 python-multipart
