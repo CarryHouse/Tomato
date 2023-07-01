@@ -4,4 +4,3 @@ Pillow
 tensorflow-cpu
 uvicorn==0.22.0
 python-multipart
-logging
