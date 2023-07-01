@@ -13,11 +13,21 @@ app = FastAPI()
 # Disable scientific notation for clarity
 np.set_printoptions(suppress=True)
 
-# Load the model
-model = keras.models.load_model("models/mobile_net.h5", compile=False)
+cwd = os.getcwd() 
+# Get the current working directory 
+model_path = os.path.join(cwd, "models", "mobile_net.h5")
+ # Join it with the relative path of the model file 
+labels_path = os.path.join(cwd, "models", "labels.txt") 
+# Join it with the relative path of the labels file 
+model = keras.models.load_model(model_path, compile=False) 
+# Load the model using the absolute path 
+class_names = open(labels_path, "r").readlines() # Load the labels using the absolute path
 
-# Load the labels
-class_names = open("models/labels.txt", "r").readlines()
+# # Load the model
+# model = keras.models.load_model("models/mobile_net.h5", compile=False)
+
+# # Load the labels
+# class_names = open("models/labels.txt", "r").readlines()
 
 # Create the array of the right shape to feed into the keras model
 # The 'length' or number of images you can put into the array is
