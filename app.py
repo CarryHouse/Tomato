@@ -62,6 +62,6 @@ async def predict_image(file: UploadFile = File(...)):
     return jsonable_encoder(result)
 
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True, access_log=False)
+if __name__ == "__main__": 
+    port = int(os.environ.get("PORT", 8000)) 
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
