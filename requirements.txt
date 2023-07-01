@@ -1,6 +1,6 @@
 fastapi==0.99.0
-numpy==1.23.5
+numpy
 Pillow
-tensorflow==2.12.0
-tensorflow_intel==2.12.0
+tensorflow
+tensorflow_intel
 uvicorn==0.22.0
