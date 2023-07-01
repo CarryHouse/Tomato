@@ -1,47 +1,54 @@
 import uvicorn
-from fastapi import FastAPI
-from pydantic import BaseModel
-import asyncpg
-from fastapi.middleware.cors import CORSMiddleware
-from databases import Database
+import tensorflow as tf
+from fastapi import FastAPI, UploadFile, File
+from PIL import Image, ImageOps
+import numpy as np
+import io
+from tensorflow import keras
+from fastapi.encoders import jsonable_encoder
 
 app = FastAPI()
-database = Database('postgresql://awjzgmwqiatzjg:e4424ae3d375e2057bcc9cde832672940d44ea2c05260e28ccb04dc1575ec52d@ec2-34-204-22-76.compute-1.amazonaws.com:5432/dabbhqt4pegslv')
 
-@app.on_event("startup")
-async def database_connect():
-    await database.connect()
+# Disable scientific notation for clarity
+np.set_printoptions(suppress=True)
 
+# Load the model
+model = keras.models.load_model("models/mobile_net.h5", compile=False)
 
-@app.on_event("shutdown")
-async def database_disconnect():
-    await database.disconnect()
+# Load the labels
+class_names = open("models/labels.txt", "r").readlines()
 
-class Pointdata(BaseModel):
-    device:str
-    counts:int
-    location:str
-    vehicletype:str
-    trackdate:str
+# Create the array of the right shape to feed into the keras model
+# The 'length' or number of images you can put into the array is
+# determined by the first position in the shape tuple, in this case 1
+data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
-@app.post("/traffic/")
-async def create_data(item:Pointdata):
+@app.post("/predict/")
+async def predict_image(file: UploadFile = File(...)):
     try:
-        # query = conn.execute("insert into Traffic(deviceName,location,vehicletype,vehiclecount) values('{0}','{1}','{2}','{3}')".format(item.device,item.location,item.vehicletype,item.counts))
-        await database.execute("insert into Traffic(deviceName,tdate,location,vehicletype,vehiclecount) values('{0}','{1}','{2}','{3}','{4}')".format(item.device,item.trackdate,item.location,item.vehicletype,item.counts))
-        result= {"message":"success"}
-    except:
-        result= {"Error":"data not sent"}
-    return result
+        # Read and process the image
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        size = (224, 224)
+        image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
+        image_array = np.asarray(image)
+        normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
+        data[0] = normalized_image_array
 
-@app.get("/fetchdata/")
-async def read_results():
-    try:
-        query ="select * from Traffic"
-        result = await database.fetch_all(query=query)
+        # Predict the image
+        prediction = model.predict(data)
+        index = np.argmax(prediction)
+        class_name = class_names[index]
+        confidence_score = prediction[0][index]
+
+        result = { 
+                  "predicted_class": class_name.strip(),             
+                  "confidence_score": float(confidence_score)
+                  }
     except:
-        result= {"Error":"Database is empty"}
-    return result
+        result = {"Error": "Failed to predict image"}
+
+    return jsonable_encoder(result)
+
 if __name__ == "__main__":
-
-    uvicorn.run("app:app",reload=True, access_log=False)
+    uvicorn.run("app:app", reload=True, access_log=False)
