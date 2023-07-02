@@ -24,7 +24,7 @@ model = keras.models.load_model(model_path, compile=False)
 class_names = open(labels_path, "r").readlines() # Load the labels using the absolute path
 
 # # Load the model
-# model = keras.models.load_model("models/mobile_net.h5", compile=False)
+# model = keras.models.load_model("models/tomatoes.h5", compile=False)
 
 # # Load the labels
 # class_names = open("models/labels.txt", "r").readlines()
