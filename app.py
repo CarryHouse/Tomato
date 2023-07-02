@@ -40,7 +40,7 @@ async def predict_image(file: UploadFile = File(...)):
         # Read and process the image
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
-        size = (224, 224)
+        size = (256, 256)  # Update the size to (256, 256)
         image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
         image_array = np.asarray(image)
         normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
@@ -60,6 +60,7 @@ async def predict_image(file: UploadFile = File(...)):
         result = {"Error": "Failed to predict image"}
 
     return jsonable_encoder(result)
+
 
 if __name__ == "__main__": 
     port = int(os.environ.get("PORT", 8000)) 
