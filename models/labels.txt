@@ -1,4 +1,2 @@
-Healthy
-MLB
-MSV
-Other
+Tomato_healthy
+Tomato_mosaic_virus
