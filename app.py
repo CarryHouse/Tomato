@@ -44,23 +44,21 @@ async def predict_image(file: UploadFile = File(...)):
         image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
         image_array = np.asarray(image)
         normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
-        data[0] = normalized_image_array
+        img_array = tf.expand_dims(normalized_image_array, 0)
 
         # Predict the image
-        prediction = model.predict(data)
-        index = np.argmax(prediction)
-        class_name = class_names[index]
-        confidence_score = prediction[0][index]
+        predictions = model.predict(img_array)
+        predicted_class = class_names[np.argmax(predictions[0])]
+        confidence_score = round(100 * np.max(predictions[0]), 2)
 
         result = { 
-                  "predicted_class": class_name.strip(),             
-                  "confidence_score": float(confidence_score)
-                  }
+            "predicted_class": predicted_class.strip(),             
+            "confidence_score": float(confidence_score)
+        }
     except:
         result = {"Error": "Failed to predict image"}
 
     return jsonable_encoder(result)
-
 
 if __name__ == "__main__": 
     port = int(os.environ.get("PORT", 8000)) 
