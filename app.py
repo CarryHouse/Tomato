@@ -15,7 +15,7 @@ np.set_printoptions(suppress=True)
 
 cwd = os.getcwd() 
 # Get the current working directory 
-model_path = os.path.join(cwd, "models", "mobile_net.h5")
+model_path = os.path.join(cwd, "models", "tomatoes.h5")
  # Join it with the relative path of the model file 
 labels_path = os.path.join(cwd, "models", "labels.txt") 
 # Join it with the relative path of the labels file 
