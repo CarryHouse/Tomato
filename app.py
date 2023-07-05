@@ -1,66 +1,53 @@
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import tensorflow as tf
-from fastapi import FastAPI, UploadFile, File
-from PIL import Image, ImageOps
 import numpy as np
-import io
-from tensorflow import keras
-from fastapi.encoders import jsonable_encoder
-import os 
+from io import BytesIO
+from PIL import Image
+import tensorflow as tf
+from tensorflow.keras.models import load_model
 
 app = FastAPI()
 
-# Disable scientific notation for clarity
-np.set_printoptions(suppress=True)
+origins = [
+    "http://localhost",
+    "http://localhost:3005",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-cwd = os.getcwd() 
-# Get the current working directory 
-model_path = os.path.join(cwd, "models", "tomatoes2.h5")
- # Join it with the relative path of the model file 
-labels_path = os.path.join(cwd, "models", "labels.txt") 
-# Join it with the relative path of the labels file 
-model = keras.models.load_model(model_path, compile=False) 
-# Load the model using the absolute path 
-class_names = open(labels_path, "r").readlines() # Load the labels using the absolute path
+# class 
 
-# # Load the model
-# model = keras.models.load_model("models/tomatoes.h5", compile=False)
+MODEL = load_model("tomatoes2.h5")
 
-# # Load the labels
-# class_names = open("models/labels.txt", "r").readlines()
+CLASS_NAMES = ["Others","Tomato_healthy", "Tomato_mosaic_virus"]
 
-# Create the array of the right shape to feed into the keras model
-# The 'length' or number of images you can put into the array is
-# determined by the first position in the shape tuple, in this case 1
-data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
-@app.post("/predict/")
-async def predict_image(file: UploadFile = File(...)):
-    try:
-        # Read and process the image
-        contents = await file.read()
-        image = Image.open(io.BytesIO(contents)).convert("RGB")
-        size = (256, 256)  # Update the size to (256, 256)
-        image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
-        image_array = np.asarray(image)
-        normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
-        img_array = tf.expand_dims(normalized_image_array, 0)
 
-        # Predict the image
-        predictions = model.predict(img_array)
-        predicted_class = class_names[np.argmax(predictions[0])]
-        confidence_score = round(100 * np.max(predictions[0]), 2)
+def read_file_as_image(data) -> np.ndarray:
+    image = np.array(Image.open(BytesIO(data)))
+    return image
 
-        result = { 
-            "predicted_class": predicted_class.strip(),             
-            "confidence_score": float(confidence_score)
-        }
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        result = {"Error": "Failed to predict image"}
+@app.post("/predict")
+async def predict(
+    file: UploadFile = File(...)
+):
+    image = read_file_as_image(await file.read())
+    img_batch = np.expand_dims(image, 0)
+    
+    predictions = MODEL.predict(img_batch)
 
-    return jsonable_encoder(result)
-
+    predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
+    confidence = np.max(predictions[0])
+    return {
+        'class': predicted_class,
+        'confidence': float(confidence)
+    }
 
 if __name__ == "__main__": 
     port = int(os.environ.get("PORT", 8000)) 
