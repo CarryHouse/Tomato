@@ -21,36 +21,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# class 
-
+# Load model
 MODEL = load_model("./models/tomatoes2.h5")
 
 CLASS_NAMES = ["Others", "Tomato_healthy", "Tomato_mosaic_virus"]
 
-def read_file_as_image(data) -> np.ndarray:
-    image = np.array(Image.open(BytesIO(data)))
-    return image
 
-def preprocess_image(image):
-    resized_image = Image.fromarray(image).resize((256, 256))
-    return np.array(resized_image) / 255.0
+def read_file_as_image(data) -> np.ndarray:
+    image = Image.open(BytesIO(data))
+    image = image.resize((256, 256))  # Resize the image to (256, 256)
+    image_array = np.array(image) / 255.0
+    return image_array
+
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
     image = read_file_as_image(await file.read())
-    preprocessed_image = preprocess_image(image)
-    img_batch = np.expand_dims(preprocessed_image, 0)
-    
+    img_batch = np.expand_dims(image, 0)
+
     predictions = MODEL.predict(img_batch)
 
     predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
     confidence = float(np.max(predictions[0]))
-    
+
     return {
         'class': predicted_class,
         'confidence': confidence
     }
 
-if __name__ == "__main__": 
-    port = int(os.environ.get("PORT", 8000)) 
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app:app", host="0.0.0.0", port=port)
