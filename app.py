@@ -32,7 +32,7 @@ def read_file_as_image(data) -> np.ndarray:
     return image
 
 def preprocess_image(image):
-    resized_image = image.resize((256, 256))
+    resized_image = Image.fromarray(image).resize((256, 256))
     return np.array(resized_image) / 255.0
 
 @app.post("/predict/")
