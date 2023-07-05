@@ -30,7 +30,7 @@ CLASS_NAMES = ["Others", "Tomato_healthy", "Tomato_mosaic_virus"]
 def read_file_as_image(data) -> np.ndarray:
     image = Image.open(BytesIO(data))
     image = image.resize((256, 256))  # Resize the image to (256, 256)
-    image_array = np.array(image) / 255.0
+    image_array = np.array(image)
     return image_array
 
 
