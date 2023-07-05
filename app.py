@@ -23,7 +23,7 @@ app.add_middleware(
 
 # class 
 
-MODEL = load_model("tomatoes2.h5")
+MODEL = load_model("./models/tomatoes2.h5")
 
 CLASS_NAMES = ["Others","Tomato_healthy", "Tomato_mosaic_virus"]
 
@@ -33,7 +33,7 @@ def read_file_as_image(data) -> np.ndarray:
     image = np.array(Image.open(BytesIO(data)))
     return image
 
-@app.post("/predict")
+@app.post("/predict/")
 async def predict(
     file: UploadFile = File(...)
 ):
