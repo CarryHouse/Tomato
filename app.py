@@ -1,10 +1,11 @@
+from io import BytesIO
+
+import numpy as np
+import tensorflow as tf
+import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-import numpy as np
-from io import BytesIO
 from PIL import Image
-import tensorflow as tf
 from tensorflow.keras.models import load_model
 
 app = FastAPI()
@@ -22,9 +23,9 @@ app.add_middleware(
 )
 
 # Load model
-MODEL = load_model("./models/tomatoes2.h5")
+MODEL = load_model("./models/new_model.h5")
 
-CLASS_NAMES = ["Others", "Tomato_healthy", "Tomato_mosaic_virus"]
+CLASS_NAMES=['miner', 'nodisease', 'phoma', 'rust']
 
 
 def read_file_as_image(data) -> np.ndarray:
